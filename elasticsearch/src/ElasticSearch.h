@@ -52,6 +52,8 @@ private:
 	bool BatchIndex();
 	bool SendMappings();
 	bool UpdateIndex(double now, double rinterval, double rbase);
+	threading::Field** MakeFields(const threading::Field* const* fields, int num_fields, std::string path);
+
 
 	CURL* HTTPSetup();
 	size_t HTTPReceive(void* ptr, int size, int nmemb, void* userdata);
