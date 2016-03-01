@@ -89,6 +89,9 @@ bool ElasticSearch::DoInit(const WriterInfo& info, int num_fields, const threadi
 		return false;
 		}
 
+	// set up lookups and renamed fields.
+	fixed_fields = MakeFields(fields, num_fields, Info().path);
+
 	return true;
 	}
 
@@ -146,7 +149,7 @@ bool ElasticSearch::DoWrite(int num_fields, const Field* const * fields,
 	buffer.AddRaw("\"_timestamp\":", 13);
 	buffer.Add((uint64) (network_time * 1000));
 	buffer.AddRaw(",", 1);
-	json->Describe(&buffer, num_fields, fields, vals);
+	json->Describe(&buffer, num_fields, fixed_fields, vals);
 
 	buffer.AddRaw("}\n", 2);
 
@@ -262,6 +265,44 @@ bool ElasticSearch::DoHeartbeat(double network_time, double current_time)
 	return true;
 	}
 
+threading::Field** ElasticSearch::MakeFields(const threading::Field* const* fields, int num_fields, std::string path){
+    // create the renamed fields, based on user-supplied config.
+    threading::Field** newFields = (threading::Field**)malloc(sizeof(threading::Field*) * (num_fields));
+
+    // what I'd like to do is
+    // first, grab the rename table for just this log
+    // The config will have a table of table of strings.
+    // the first table key is the name of the log (dns, http, etc)
+    // the internal table key is the column name, the internal table value
+    // will be the name to change that to.
+    // loop over the existing fields, look up the field name in the rename table.
+    // if it exists, create a new field entry with the new name, otherwise,
+    // copy the existing field name in to the new field list.
+    //
+    // However, I can't get the bro TableVar Lookup to return anything
+    // even for tables that I know have data in them. I'm clearly doing
+    // something wrong. So,  hardcode the renames in the interest of
+    // getting something done.
+    for (int i = 0; i < num_fields; i++){
+        std::string newName;
+
+        if (strcmp(fields[i]->name, "ts") == 0)
+        {
+            newName = "timestamp";
+        }
+
+        newName = strreplace(fields[i]->name, ".", "_");
+
+        newFields[i]= new threading::Field(newName.c_str(),
+                fields[i]->secondary_name,
+                fields[i]->type,
+                fields[i]->subtype,
+                true);
+
+    }
+
+    return newFields;
+}
 
 CURL* ElasticSearch::HTTPSetup()
 	{

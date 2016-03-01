@@ -16,8 +16,8 @@
 namespace logging { namespace writer {
 
 typedef enum {
-	ES_DIRECT, 
-	ES_NSQ, 
+	ES_DIRECT,
+	ES_NSQ,
 	ES_UNKNOWN
 } ESDestination;
 
@@ -75,10 +75,10 @@ private:
 	string es_server;
 	string bulk_url;
 	string nsq_topic;
- 
+
 	ESDestination destination;
 	string dst_string;
-	
+
 	struct curl_slist *http_headers;
 
 	string path;
@@ -89,6 +89,8 @@ private:
 	uint64 batch_size;
 
 	threading::formatter::JSON* json;
+	//varible to hold renamed fields
+	threading::Field** fixed_fields;
 };
 
 }
