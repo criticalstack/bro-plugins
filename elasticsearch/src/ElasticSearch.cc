@@ -269,20 +269,7 @@ threading::Field** ElasticSearch::MakeFields(const threading::Field* const* fiel
     // create the renamed fields, based on user-supplied config.
     threading::Field** newFields = (threading::Field**)malloc(sizeof(threading::Field*) * (num_fields));
 
-    // what I'd like to do is
-    // first, grab the rename table for just this log
-    // The config will have a table of table of strings.
-    // the first table key is the name of the log (dns, http, etc)
-    // the internal table key is the column name, the internal table value
-    // will be the name to change that to.
-    // loop over the existing fields, look up the field name in the rename table.
-    // if it exists, create a new field entry with the new name, otherwise,
-    // copy the existing field name in to the new field list.
-    //
-    // However, I can't get the bro TableVar Lookup to return anything
-    // even for tables that I know have data in them. I'm clearly doing
-    // something wrong. So,  hardcode the renames in the interest of
-    // getting something done.
+  	// Loop over each of the fields at startup time.
     for (int i = 0; i < num_fields; i++){
         std::string newName;
 
