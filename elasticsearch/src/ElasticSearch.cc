@@ -63,7 +63,7 @@ ElasticSearch::ElasticSearch(WriterFrontend* frontend) : WriterBackend(frontend)
 
 	curl_handle = HTTPSetup();
 
-	json = new threading::formatter::JSON(this, threading::formatter::JSON::TS_MILLIS);
+	json = new threading::formatter::JSON(this, threading::formatter::JSON::TS_ISO8601);
 	json->SurroundingBraces(false);
 }
 
@@ -275,7 +275,7 @@ threading::Field** ElasticSearch::MakeFields(const threading::Field* const* fiel
 
         if (strcmp(fields[i]->name, "ts") == 0)
         {
-            newName = "timestamp";
+            newName = "@timestamp";
         }
 
         newName = strreplace(fields[i]->name, ".", "_");
